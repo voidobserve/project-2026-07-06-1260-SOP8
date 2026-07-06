@@ -1,0 +1,115 @@
+C51 COMPILER V9.60.7.0   KEY                                                               03/25/2026 16:34:37 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE KEY
+OBJECT MODULE PLACED IN .\Release\Objects\key.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE ..\..\Hardware\key.c LARGE OPTIMIZE(9,SIZE) BROWSE ORDER INTVECTOR(0X000
+                    -C) INCDIR(..\..\Libraries\Include;..\..\User;..\..\Hardware) INTERVAL(3) DEBUG OBJECTEXTEND PRINT(.\Release\Listings\key
+                    -.lst) OBJECT(.\Release\Objects\key.obj)
+
+line level    source
+
+   1          #include "key.h"
+   2          #include "include.h"
+   3          #include "user_config.h"
+   4          #include "motor_handle.h"
+   5          #include "pwm.h"
+   6          
+   7          // 检测按键的引脚，配置为输入上拉
+   8          void key_init(void)
+   9          {
+  10   1          // SW1
+  11   1          P1_PU |= GPIO_P16_PULL_UP(0x01);
+  12   1          P1_MD1 &= ~GPIO_P16_MODE_SEL(0x03); // 输入
+  13   1      
+  14   1          // SW2
+  15   1          P0_PU |= GPIO_P02_PULL_UP(0x01);
+  16   1          P0_MD0 &= ~GPIO_P02_MODE_SEL(0x03); // 输入
+  17   1      }
+  18          
+  19          void key0_scan_handle(void)
+  20          {
+  21   1          // 使用边沿检测
+  22   1          volatile u8 curr = KEY_0_PIN;         // 存放当前检测到的电平
+  23   1          static volatile u8 last = U8_MAX_VAL; // 存放上一次检测到的电平
+  24   1      
+  25   1          if (curr == last)
+  26   1          {
+  27   2              return;
+  28   2          }
+  29   1      
+  30   1          if (last != U8_MAX_VAL)
+  31   1          {
+  32   2              if (curr)
+  33   2              {
+  34   3                  // 上升沿
+  35   3                  motor_set_dir(&motor_handle_0, MOTOR_DIR_NONE);
+  36   3                  // printf("key0 level == 1\n");
+  37   3                  // printf("toggle\n");
+  38   3              }
+  39   2              else
+  40   2              {
+  41   3                  // 下降沿
+  42   3                  // printf("key0 level == 0\n");
+  43   3              }
+  44   2          }
+  45   1          else // last == U8_MAX_VAL
+  46   1          {
+  47   2              // 第一次上电，忽略
+  48   2              // printf("key0 last == U8_MAX_VAL\n");
+  49   2          }
+  50   1      
+  51   1          last = curr;
+  52   1      }
+  53          
+C51 COMPILER V9.60.7.0   KEY                                                               03/25/2026 16:34:37 PAGE 2   
+
+  54          void key1_scan_handle(void)
+  55          {
+  56   1          // 使用边沿检测
+  57   1          volatile u8 curr = KEY_1_PIN;         // 存放当前检测到的电平
+  58   1          static volatile u8 last = U8_MAX_VAL; // 存放上一次检测到的电平
+  59   1      
+  60   1          if (curr == last)
+  61   1          {
+  62   2              return;
+  63   2          }
+  64   1      
+  65   1          if (last != U8_MAX_VAL)
+  66   1          {
+  67   2              if (curr)
+  68   2              {
+  69   3                  // 上升沿
+  70   3                  motor_set_dir(&motor_handle_1, MOTOR_DIR_NONE);
+  71   3      
+  72   3                  // printf("key1 level == 1\n");
+  73   3              }
+  74   2              else
+  75   2              {
+  76   3                  // 下降沿
+  77   3                  // printf("key1 level == 0\n");
+  78   3              }
+  79   2          }
+  80   1          else // last == U8_MAX_VAL
+  81   1          {
+  82   2              // 第一次上电，忽略
+  83   2      
+  84   2              // printf("key1 last == U8_MAX_VAL\n");
+  85   2          }
+  86   1      
+  87   1          last = curr;
+  88   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    131    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      2       2
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
