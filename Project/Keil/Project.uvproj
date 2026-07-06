@@ -389,31 +389,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>User</GroupName>
-          <Files>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>debug.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\Libraries\Source\debug.c</FilePath>
-            </File>
-            <File>
-              <FileName>uart_data_handle.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\uart_data_handle.c</FilePath>
-            </File>
-            <File>
-              <FileName>motor_status_feedback.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\motor_status_feedback.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>Hardware</GroupName>
           <Files>
             <File>
@@ -442,14 +417,34 @@
               <FilePath>..\..\Hardware\key.c</FilePath>
             </File>
             <File>
+              <FileName>motor_handle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Hardware\motor_handle.c</FilePath>
+            </File>
+            <File>
               <FileName>uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\Hardware\uart.c</FilePath>
             </File>
             <File>
-              <FileName>motor_handle.c</FileName>
+              <FileName>led.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\Hardware\motor_handle.c</FilePath>
+              <FilePath>..\..\Hardware\led.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>User</GroupName>
+          <Files>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\Libraries\Source\debug.c</FilePath>
             </File>
           </Files>
         </Group>

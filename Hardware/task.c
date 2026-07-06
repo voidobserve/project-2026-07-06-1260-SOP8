@@ -2,10 +2,8 @@
 #include "user_config.h"
 #include "adc.h"
 #include "key.h"
-#include "motor_handle.h"
-#include "motor_status_feedback.h"
-
-// #define TASK_NUM_MAX 2 // 任务数量
+#include "motor_handle.h" 
+ 
 
 /*
     定义任务列表，在这里注册任务
@@ -13,15 +11,10 @@
 void task_debug(void);
 static volatile task_ctl_block_t task_table[] = {
     {0, 0, 1, motor_handle_func_0}, //
-    {0, 0, 1, motor_handle_func_1},
+    // {0, 0, 1, motor_handle_func_1},
     // // =======================================================
     {0, 0, 5, key0_scan_handle},
-    {0, 0, 5, key1_scan_handle},
-    // =======================================================
-    {0, 0, MOTOR_STATUS_SCAN_PERIOD, motor_status_scan}, // USER_TO_DO 测试时屏蔽
-
-    // {0, 0, 1000, motor_status_feedback}, // USER_TO_DO 测试时使用 1000ms
-    {0, 0, MOTOR_STATUS_FEEDBACK_PERIOD, motor_status_feedback}, // USER_TO_DO 测试时屏蔽，实际需要恢复
+    // {0, 0, 5, key1_scan_handle}, 
 
 #if USER_DEBUG_ENABLE
 // {0, 0, 100, task_debug},

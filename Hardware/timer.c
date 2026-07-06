@@ -1,7 +1,6 @@
 #include "timer.h"
 #include "task.h"
-#include "adc.h"
-#include "uart_data_handle.h"
+#include "adc.h" 
 
 // timer0 用作系统定时器
 void timer0_init(void)
@@ -33,9 +32,8 @@ void TIMR0_IRQHandler(void) interrupt TMR0_IRQn
 
 		task_schedule_tick();
 
-		adc_scan(); // 至少要间隔1ms，才调用一次
-
-		uart_data_recv_timeout_add();
+		adc_scan_1ms_isr(); // 至少要间隔1ms，才调用一次
+ 
 	}
 
 	// 退出中断设置IP，不可删除

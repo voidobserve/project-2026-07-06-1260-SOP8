@@ -1,8 +1,9 @@
 #include "motor_handle.h"
 #include "adc.h"
+#include "led.h"
 
 volatile motor_handle_t motor_handle_0;
-volatile motor_handle_t motor_handle_1;
+
 /*
     要让指针指向xdata区域的全局变量，需要同样将指针变为全局变量
 
@@ -40,39 +41,7 @@ static void motor_0_adc_val_update(void)
         adc_clear_update_flag(ADC_CHANNEL_INDEX_REVERSE_0);
         motor_handle_0.adc_val_reverse = adc_get_val(ADC_CHANNEL_INDEX_REVERSE_0);
     }
-}
-
-static void motor_1_stop(void)
-{
-    MOTOR_1_FORWARD_PWM_DUTY_SET(PWM_DUTY_VAL_0_PERCENT);
-    MOTOR_1_REVERSE_PWM_DUTY_SET(PWM_DUTY_VAL_0_PERCENT);
-}
-
-static void motor_1_forward(void)
-{
-    MOTOR_1_FORWARD_PWM_DUTY_SET(MOTOR_WORKING_PWM_DUTY_VAL);
-}
-
-static void motor_1_reverse(void)
-{
-    MOTOR_1_REVERSE_PWM_DUTY_SET(MOTOR_WORKING_PWM_DUTY_VAL);
-}
-
-static void motor_1_adc_val_update(void)
-{
-    if (adc_get_update_flag(ADC_CHANNEL_INDEX_FORWARD_1))
-    {
-        adc_clear_update_flag(ADC_CHANNEL_INDEX_FORWARD_1);
-        motor_handle_1.adc_val_forward = adc_get_val(ADC_CHANNEL_INDEX_FORWARD_1);
-    }
-
-    if (adc_get_update_flag(ADC_CHANNEL_INDEX_REVERSE_1))
-    {
-        adc_clear_update_flag(ADC_CHANNEL_INDEX_REVERSE_1);
-        motor_handle_1.adc_val_reverse = adc_get_val(ADC_CHANNEL_INDEX_REVERSE_1);
-    }
-}
-
+} 
 void motor_handle_init(void)
 {
     motor_handle_0.dest_dir = MOTOR_DIR_NONE;
@@ -82,16 +51,7 @@ void motor_handle_init(void)
     motor_handle_0.reverse = motor_0_reverse;
     motor_handle_0.stop = motor_0_stop;
     motor_handle_0.adc_val_update = motor_0_adc_val_update;
-    motor_handle_0.is_status_need_to_feedback = 0;
-
-    motor_handle_1.dest_dir = MOTOR_DIR_NONE;
-    motor_handle_1.status = MOTOR_STATUS_STOP;
-    motor_handle_1.change_dir_enable = 0;
-    motor_handle_1.forward = motor_1_forward;
-    motor_handle_1.reverse = motor_1_reverse;
-    motor_handle_1.stop = motor_1_stop;
-    motor_handle_1.adc_val_update = motor_1_adc_val_update;
-    motor_handle_0.is_status_need_to_feedback = 0;
+    // motor_handle_0.is_status_need_to_feedback = 0; 
 }
 
 /**
@@ -109,8 +69,8 @@ void motor_set_dir(motor_handle_t *motor_handle, motor_dest_dir_t dest_dir)
     motor_handle_ptr = (motor_handle_t *)motor_handle;
     motor_handle_ptr->stop();
     motor_handle_ptr->status = MOTOR_STATUS_STOP;     // 表示电机已经停止（如果不加这句，电机工作的累计时间会一直持续，不会清零）
-    motor_handle_ptr->is_status_need_to_feedback = 0; // 不把这个停止状态反馈给蓝牙ic
-
+    // motor_handle_ptr->is_status_need_to_feedback = 0; // 不把这个停止状态反馈给蓝牙ic
+ 
     switch (dest_dir)
     {
     case MOTOR_DIR_NONE: // 根据原来的方向，自动切换
@@ -152,7 +112,8 @@ static void motor_handle(motor_handle_t *motor_handle)
         motor_handle_ptr->change_dir_cnt--;
     }
 
-    if (motor_handle_ptr->change_dir_enable && motor_handle_ptr->change_dir_cnt == 0)
+    if (motor_handle_ptr->change_dir_enable && 
+        motor_handle_ptr->change_dir_cnt == 0)
     {
         // 如果要改变电机方向，并且已经计数完毕
         motor_handle_ptr->change_dir_enable = 0;
@@ -164,10 +125,11 @@ static void motor_handle(motor_handle_t *motor_handle)
         else
         {
             motor_handle_ptr->status = MOTOR_STATUS_REVERSE;
+            LED_POWER_OFF(); // 电机准备反转时，关闭灯光 
             motor_handle_ptr->reverse();
         }
 
-        motor_handle_ptr->is_status_need_to_feedback = 1; // 允许反馈电机的状态
+        // motor_handle_ptr->is_status_need_to_feedback = 1; // 允许反馈电机的状态
     }
 
     // 在电机转动时，检测电机是否过流：
@@ -216,7 +178,14 @@ static void motor_handle(motor_handle_t *motor_handle)
         // 电机转动且超过一定时间，也停下电机
         motor_handle_ptr->status = MOTOR_STATUS_STOP;
         motor_handle_ptr->stop();
-        motor_handle_ptr->is_status_need_to_feedback = 1;
+
+        if (MOTOR_STATUS_FORWARD ==  motor_handle_ptr->dest_dir)
+        {
+            // 如果电机是正转后停下来的，点亮灯光
+            LED_POWER_ON();
+        }
+
+        // motor_handle_ptr->is_status_need_to_feedback = 1;
     }
 }
 
@@ -224,8 +193,4 @@ void motor_handle_func_0(void)
 {
     motor_handle(&motor_handle_0);
 }
-
-void motor_handle_func_1(void)
-{
-    motor_handle(&motor_handle_1);
-}
+ 

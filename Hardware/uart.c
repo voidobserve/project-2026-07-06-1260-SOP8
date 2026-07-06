@@ -1,8 +1,6 @@
 #include "uart.h"
 #include "user_config.h"
 
-volatile uart_rx_buffer_t uart0_rx_buffer= {0};
-
 #if USER_DEBUG_ENABLE
 // 重写puchar()函数
 char putchar(char c)
@@ -12,6 +10,28 @@ char putchar(char c)
     UART0_DATA = c;
     return c;
 }
+
+void uart0_init(void)
+{
+    // UART_TX
+    P2_MD1 &= ~GPIO_P26_MODE_SEL(0x03); // 清空对应的寄存器配置
+    P2_MD1 |= GPIO_P26_MODE_SEL(0x01);  // 输出模式
+    FOUT_S26 = GPIO_FOUT_UART0_TX;      // 输出功能选择
+
+    UART0_BAUD1 = (((SYSCLK - UART0_BAUD_RATE) / UART0_BAUD_RATE) >> 8) & 0xFF;
+    UART0_BAUD0 = ((SYSCLK - UART0_BAUD_RATE) / UART0_BAUD_RATE) & 0xFF;
+    UART0_CON0 = UART_STOP_BIT(0x00) | // 0x00：一位停止位
+                 UART_EN(0x01);        // UART 使能
+}
+
+#endif
+
+#if 0
+
+volatile uart_rx_buffer_t uart0_rx_buffer= {0};
+
+#if USER_DEBUG_ENABLE
+
 #endif
 
 void uart0_init(void)
@@ -133,3 +153,5 @@ void UART0_IRQHandler(void) interrupt UART0_IRQn
     // 退出中断设置IP，不可删除
     __IRQnIPnPop(UART0_IRQn);
 }
+
+#endif

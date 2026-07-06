@@ -7,10 +7,9 @@
 #include "adc.h"
 #include "key.h"
 #include "uart.h"
-#include "uart_data_handle.h"
-#include "motor_status_feedback.h"
+#include "led.h"
 
-
+#include "motor_handle.h"
 
 void main(void)
 {
@@ -21,31 +20,29 @@ void main(void)
     IO_MAP &= ~0x01; // 清除这个寄存器的值，实现关闭HCK和HDA引脚的调试功能（解除映射）
     WDT_KEY = 0xBB;
 
-    // WDT_KEY = WDT_KEY_VAL(0xDD); //  关闭看门狗
-    uart0_init();
+#if USER_DEBUG_ENABLE
+    uart0_init(); // 串口初始化
+    printf("uart0_init\n");
+#endif
 
     pwm_init();
     adc_init();
     key_init();
+    led_init();
 
     motor_handle_init();
-    motor_status_feedback_init();
-
     timer0_init(); // 系统定时器初始化，需要放在初始化的最后
 
-    delay_ms(10); // 等待系统稳定
+    delay_ms(10); // 等待系统稳定（至少要等adc值初始化完成）
 #if USER_DEBUG_ENABLE
-    printf("sys reset\n");
+    printf("main while begin\n");
 #endif
-     
 
     while (1)
     {
         WDT_KEY = WDT_KEY_VAL(0xAA); // 喂狗
 
         task_handle();
-        uart_data_handle();
- 
 
         // printf("main\n");
     }

@@ -28,13 +28,11 @@ enum
 {
     ADC_CHANNEL_INDEX_FORWARD_0,
     ADC_CHANNEL_INDEX_REVERSE_0,
-    ADC_CHANNEL_INDEX_FORWARD_1,
-    ADC_CHANNEL_INDEX_REVERSE_1,
 };
 typedef u8 adc_channel_index_t;
 
 void adc_init(void);
-void adc_scan(void);
+void adc_scan_1ms_isr(void);
 
 void adc_set_update_flag(adc_channel_index_t adc_channel_index);
 void adc_clear_update_flag(adc_channel_index_t adc_channel_index);
