@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   PWM                                                               07/16/2026 14:53:05 PAGE 1   
+C51 COMPILER V9.60.7.0   PWM                                                               07/16/2026 14:54:18 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE PWM
@@ -62,7 +62,7 @@ line level    source
   49          {
   50   1          STMR0_CMPAH = STMR_CMPA_VAL_H(((channel_duty) >> 8) & 0xFF); // 比较值
   51   1          STMR0_CMPAL = STMR_CMPA_VAL_L(((channel_duty) >> 0) & 0xFF); // 比较值
-C51 COMPILER V9.60.7.0   PWM                                                               07/16/2026 14:53:05 PAGE 2   
+C51 COMPILER V9.60.7.0   PWM                                                               07/16/2026 14:54:18 PAGE 2   
 
   52   1          STMR_LOADEN |= STMR_0_LOAD_EN(0x1);                          // 自动装载使能
   53   1      }
