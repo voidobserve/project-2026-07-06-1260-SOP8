@@ -22,7 +22,10 @@ enum
 };
 typedef u8 motor_status_t;
 
-// 电机方向，作为矢量来使用，并不代表电机当前的状态
+/*
+    电机方向，
+    在dest_dir中，作为矢量来使用，并不代表电机当前的状态
+*/ 
 enum
 {
     MOTOR_DIR_NONE = 0, // 默认状态
@@ -33,9 +36,8 @@ typedef u8 motor_dest_dir_t;
 
 typedef struct
 {
-    motor_dest_dir_t dest_dir;     // 目标方向（只能是正转或者反转）
+    motor_dest_dir_t dest_dir;     // 目标方向（除了刚上电，其余情况只能是正转或者反转）
     motor_status_t status;         // 当前状态
-    // u8 is_status_need_to_feedback; // 是否要反馈电机的状态（电机要换方向而短暂停止时，不把这个停止状态反馈给蓝牙ic，因为蓝牙ic会认为电机已经停止工作，会作出对应的错误响应）
 
     u8 change_dir_enable; // 是否要改变方向
     u16 change_dir_cnt;   // 改变方向的计数器（电机不能马上改变方向，如果同时正转和反转，驱动电机的MOS管会短路）

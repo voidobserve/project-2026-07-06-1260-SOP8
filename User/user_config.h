@@ -16,10 +16,22 @@
 #error USER_DEBUG_PIN_ENABLE need (USER_DEBUG_ENABLE == 1)
 #endif
 
+/*
+    产品类型
+    PRODUCT_TYPE_1 ，检测到低电平让电机正转，检测到高电平或者是悬空，让电机反转
+    PRODUCT_TYPE_2 ，检测到低电平让电机反转，检测到高电平或者是悬空，让电机正转
+ */
+#define PRODUCT_TYPE_INVALID 0x00
+#define PRODUCT_TYPE_1 0x01
+#define PRODUCT_TYPE_2 0x02
+#define PRODUCT_TYPE PRODUCT_TYPE_1
+
+#if (PRODUCT_TYPE == PRODUCT_TYPE_INVALID)
+#error "product type invalid"
+#endif
+
 #if USER_DEBUG_ENABLE
 #include <stdio.h>
 #endif
-
-// #include "motor_handle.h"
 
 #endif

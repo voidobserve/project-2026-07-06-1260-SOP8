@@ -13,7 +13,7 @@ static volatile task_ctl_block_t task_table[] = {
     {0, 0, 1, motor_handle_func_0}, //
     // {0, 0, 1, motor_handle_func_1},
     // // =======================================================
-    {0, 0, 5, key0_scan_handle},
+    {0, 0, 10, key0_scan_handle},
     // {0, 0, 5, key1_scan_handle}, 
 
 #if USER_DEBUG_ENABLE

@@ -41,7 +41,7 @@ static void motor_0_adc_val_update(void)
         adc_clear_update_flag(ADC_CHANNEL_INDEX_REVERSE_0);
         motor_handle_0.adc_val_reverse = adc_get_val(ADC_CHANNEL_INDEX_REVERSE_0);
     }
-} 
+}
 void motor_handle_init(void)
 {
     motor_handle_0.dest_dir = MOTOR_DIR_NONE;
@@ -51,7 +51,7 @@ void motor_handle_init(void)
     motor_handle_0.reverse = motor_0_reverse;
     motor_handle_0.stop = motor_0_stop;
     motor_handle_0.adc_val_update = motor_0_adc_val_update;
-    // motor_handle_0.is_status_need_to_feedback = 0; 
+    // motor_handle_0.is_status_need_to_feedback = 0;
 }
 
 /**
@@ -65,12 +65,19 @@ void motor_handle_init(void)
  */
 void motor_set_dir(motor_handle_t *motor_handle, motor_dest_dir_t dest_dir)
 {
-    // 无论要执行什么操作，都先停止电机
     motor_handle_ptr = (motor_handle_t *)motor_handle;
+
+    if (dest_dir == motor_handle_ptr->dest_dir)
+    {
+        // 已经是当前方向，不需要处理
+        return;
+    }
+
+    // 无论要执行什么操作，都先停止电机    
     motor_handle_ptr->stop();
-    motor_handle_ptr->status = MOTOR_STATUS_STOP;     // 表示电机已经停止（如果不加这句，电机工作的累计时间会一直持续，不会清零）
+    motor_handle_ptr->status = MOTOR_STATUS_STOP; // 表示电机已经停止（如果不加这句，电机工作的累计时间会一直持续，不会清零）
     // motor_handle_ptr->is_status_need_to_feedback = 0; // 不把这个停止状态反馈给蓝牙ic
- 
+
     switch (dest_dir)
     {
     case MOTOR_DIR_NONE: // 根据原来的方向，自动切换
@@ -112,7 +119,7 @@ static void motor_handle(motor_handle_t *motor_handle)
         motor_handle_ptr->change_dir_cnt--;
     }
 
-    if (motor_handle_ptr->change_dir_enable && 
+    if (motor_handle_ptr->change_dir_enable &&
         motor_handle_ptr->change_dir_cnt == 0)
     {
         // 如果要改变电机方向，并且已经计数完毕
@@ -125,11 +132,17 @@ static void motor_handle(motor_handle_t *motor_handle)
         else
         {
             motor_handle_ptr->status = MOTOR_STATUS_REVERSE;
-            LED_POWER_OFF(); // 电机准备反转时，关闭灯光 
+            LED_POWER_OFF(); // 电机准备反转时，关闭灯光
             motor_handle_ptr->reverse();
         }
 
         // motor_handle_ptr->is_status_need_to_feedback = 1; // 允许反馈电机的状态
+    }
+
+    // 电机正在转动时，关闭灯光
+    if (motor_handle_ptr->status != MOTOR_STATUS_STOP)
+    {
+        LED_POWER_OFF();
     }
 
     // 在电机转动时，检测电机是否过流：
@@ -179,7 +192,7 @@ static void motor_handle(motor_handle_t *motor_handle)
         motor_handle_ptr->status = MOTOR_STATUS_STOP;
         motor_handle_ptr->stop();
 
-        if (MOTOR_STATUS_FORWARD ==  motor_handle_ptr->dest_dir)
+        if (MOTOR_STATUS_FORWARD == motor_handle_ptr->dest_dir)
         {
             // 如果电机是正转后停下来的，点亮灯光
             LED_POWER_ON();
@@ -193,4 +206,3 @@ void motor_handle_func_0(void)
 {
     motor_handle(&motor_handle_0);
 }
- 
