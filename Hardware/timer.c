@@ -13,7 +13,7 @@ void timer0_init(void)
 	TMR0_PRH = TMR_PERIOD_VAL_H((TIMER0_PEROID_VAL >> 8) & 0xFF); // 周期值
 	TMR0_PRL = TMR_PERIOD_VAL_L((TIMER0_PEROID_VAL >> 0) & 0xFF);
 	TMR0_CONH = TMR_PRD_PND(0x1) | TMR_PRD_IRQ_EN(0x1);							 // 计数等于周期时允许发生中断
-	TMR0_CONL = TMR_SOURCE_SEL(0x7) | TMR_PRESCALE_SEL(0x0) | TMR_MODE_SEL(0x1); // 选择系统时钟，128分频，计数模式
+	TMR0_CONL = TMR_SOURCE_SEL(0x7) | TMR_PRESCALE_SEL(0x0) | TMR_MODE_SEL(0x1); // 选择系统时钟，不分频，计数模式
 }
 
 /*  ---------------------  定时中断服务函数 ---------------------- */

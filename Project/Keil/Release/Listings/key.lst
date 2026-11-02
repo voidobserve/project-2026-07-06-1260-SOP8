@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   KEY                                                               07/16/2026 14:54:18 PAGE 1   
+C51 COMPILER V9.60.7.0   KEY                                                               11/02/2026 14:09:58 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE KEY
@@ -23,178 +23,112 @@ line level    source
   12          // 检测按键的引脚，配置为输入上拉
   13          void key_init(void)
   14          {
-  15   1          // SW1
-  16   1          // P3_PU |= GPIO_P31_PULL_UP(0x01);
-  17   1          P3_MD1 &= ~GPIO_P31_MODE_SEL(0x03); // 输入
-  18   1      }
-  19          
-  20          u8 key0_get_key_val(void)
-  21          {
-  22   1          key_val_t key_val = KEY_VAL_INVALID;
-  23   1          // 将按键检测脚配置为下拉，检测有没有高电平
-  24   1          P3_PU &= ~GPIO_P31_PULL_UP(0x01); // 关闭上拉
-  25   1          P3_PD |= GPIO_P31_PULL_PD(0x01);  // 打开下拉
-  26   1          delay_ms(1);                      // 配置完引脚后，必须要等电平稳定再检测
-  27   1          if (KEY_0_PIN == 1)
-  28   1          {
-  29   2      #if USER_DEBUG_ENABLE
+  15   1          P3_MD1 &= ~GPIO_P31_MODE_SEL(0x03); // 输入
+  16   1      }
+  17          
+  18          u8 key0_get_key_val(void)
+  19          {
+  20   1          key_val_t key_val = KEY_VAL_INVALID;
+  21   1          // 将按键检测脚配置为下拉，检测有没有高电平
+  22   1          P3_PU &= ~GPIO_P31_PULL_UP(0x01); // 关闭上拉
+  23   1          P3_PD |= GPIO_P31_PULL_PD(0x01);  // 打开下拉
+  24   1          delay_ms(1);                      // 配置完引脚后，必须要等电平稳定再检测
+  25   1          if (KEY_0_PIN == 1)
+  26   1          {
+  27   2      #if USER_DEBUG_ENABLE
                       // printf("key sacn pin == 1\n");
               #endif
-  32   2              key_val = KEY_VAL_VALID_HIGH;
-  33   2          }
-  34   1      
-  35   1          // 将按键检测脚配置为上拉，检测有没有低电平
-  36   1          P3_PD &= ~GPIO_P31_PULL_PD(0x01); // 关闭下拉
-  37   1          P3_PU |= GPIO_P31_PULL_UP(0x01);  // 打开上拉
-  38   1          delay_ms(1);                      // 配置完引脚后，必须要等电平稳定再检测
-  39   1          if (KEY_0_PIN == 0)
-  40   1          {
-  41   2      #if USER_DEBUG_ENABLE
+  30   2              key_val = KEY_VAL_VALID_HIGH;
+  31   2          }
+  32   1      
+  33   1          // 将按键检测脚配置为上拉，检测有没有低电平
+  34   1          P3_PD &= ~GPIO_P31_PULL_PD(0x01); // 关闭下拉
+  35   1          P3_PU |= GPIO_P31_PULL_UP(0x01);  // 打开上拉
+  36   1          delay_ms(1);                      // 配置完引脚后，必须要等电平稳定再检测
+  37   1          if (KEY_0_PIN == 0)
+  38   1          {
+  39   2      #if USER_DEBUG_ENABLE
                       // printf("key sacn pin == 0\n");
               #endif
-  44   2              key_val = KEY_VAL_VALID_LOW;
-  45   2          }
-  46   1      
-  47   1          return key_val;
-  48   1      }
-  49          
-  50          void key0_scan_handle(void)
-  51          {
-  52   1      #if 0
-                  // 使用边沿检测（原本是5ms调用一次）
-C51 COMPILER V9.60.7.0   KEY                                                               07/16/2026 14:54:18 PAGE 2   
+  42   2              key_val = KEY_VAL_VALID_LOW;
+  43   2          }
+  44   1      
+  45   1          return key_val;
+  46   1      }
+  47          
+  48          void key0_scan_handle(void)
+  49          {
+  50   1          static volatile u8 filter_cnt = 0; // 滤波计数器
+  51   1          static volatile key_val_t filter_key_lev = KEY_VAL_INVALID;
+  52   1          static volatile u8 is_initialized = 0;
+  53   1      
+C51 COMPILER V9.60.7.0   KEY                                                               11/02/2026 14:09:58 PAGE 2   
 
-                  volatile u8 curr = KEY_0_PIN;         // 存放当前检测到的电平
-                  static volatile u8 last = U8_MAX_VAL; // 存放上一次检测到的电平
-              
-                  if (curr == last)
-                  {
-                      return;
-                  }
-              
-                  if (last != U8_MAX_VAL)
-                  {
-                      if (curr)
-                      {
-                          // 上升沿
-                          motor_set_dir(&motor_handle_0, MOTOR_DIR_NONE);
-                          // printf("key0 level == 1\n");
-                          // printf("toggle\n");
-                      }
-                      else
-                      {
-                          // 下降沿
-                          // printf("key0 level == 0\n");
-                      }
-                  }
-                  else // last == U8_MAX_VAL
-                  {
-                      // 第一次上电，忽略
-                      // printf("key0 last == U8_MAX_VAL\n");
-                  }
-              
-                  last = curr;
-              #endif
-  85   1      
-  86   1          // 使用电平检测
-  87   1      #if 0
-              
-                  static volatile u8 filter_cnt = 0; // 滤波计数器
-                  static volatile u8 filter_key_lev = KEY_LEV_UNKNOWN;
-                  volatile key_lev_t cur_key_lev = KEY_0_PIN; // 获取当前引脚对应的电平
-                  static volatile key_lev_t last_key_lev = KEY_LEV_UNKNOWN;
-              
-                  // TODO 第一次上电时，电机不转动
-                  static volatile u8 is_initialized = 0;
-              
-                  // TODO 有信号指的是有高电平或者低电平信号，引脚悬空表示没有信号
-              
-                  if (cur_key_lev != filter_key_lev)
-                  {
-                      filter_cnt = 0;
-                      filter_key_lev = cur_key_lev;
-                  }
-              
-                  if (filter_cnt < 3)
-                  {
-                      filter_cnt++;
-                      return;
-                  }
-              
-                  if (0 == is_initialized && cur_key_lev == KEY_LEV_HIGH)
-                  {
-                      // 没有初始化，说明是刚上电，并且当前引脚是高电平
-                      return;
-                  }
-C51 COMPILER V9.60.7.0   KEY                                                               07/16/2026 14:54:18 PAGE 3   
-
-                  else if (0 == is_initialized && cur_key_lev == KEY_LEV_LOW)
-                  {
-                      // 没有初始化，并且当前引脚是低电平，说明当前是上电后，第一次有按�
-             -�按下
-                      is_initialized = 1;
-                  }
-              
-                  if (last_key_lev != cur_key_lev &&
-                      cur_key_lev == KEY_LEV_LOW)
-                  {
-                      /*
-                          检测到按键按下，有下降沿时，
-                          切换方向
-                      */
-                      motor_set_dir(&motor_handle_0, MOTOR_DIR_NONE);
-                  }
-                  else if (cur_key_lev == KEY_LEV_HIGH)
-                  {
-                      // 检测到按键抬起，让电机停止
-                      motor_handle_0.stop();
-                      motor_handle_0.status = MOTOR_STATUS_STOP;
-                      if (MOTOR_STATUS_FORWARD == motor_handle_0.dest_dir)
-                      {
-                          // 如果电机是正转后停下来的，点亮灯光
-                          LED_POWER_ON();
-                      }
-                  }
-              
-                  last_key_lev = cur_key_lev;
-              
-              #endif
- 146   1      
- 147   1          //
- 148   1          static volatile u8 filter_cnt = 0; // 滤波计数器
- 149   1          static volatile key_val_t filter_key_lev = KEY_VAL_INVALID;
- 150   1          static volatile u8 is_initialized = 0;
- 151   1      
- 152   1          volatile key_val_t cur_key_lev = KEY_VAL_INVALID;
- 153   1      
- 154   1          cur_key_lev = key0_get_key_val();
- 155   1          if (cur_key_lev != filter_key_lev)
- 156   1          {
- 157   2              filter_cnt = 0;
- 158   2              filter_key_lev = cur_key_lev;
- 159   2          }
- 160   1      
- 161   1          if (filter_cnt < 3)
- 162   1          {
- 163   2              filter_cnt++;
- 164   2              return;
- 165   2          }
- 166   1      
- 167   1          if (0 == is_initialized && cur_key_lev == KEY_VAL_INVALID)
- 168   1          {
- 169   2              // 没有初始化，并且当前键值无效，说明是上电后，一直没有给有效信号
- 170   2              return;
- 171   2          }
- 172   1          else if (0 == is_initialized && cur_key_lev != KEY_VAL_INVALID)
- 173   1          {
- 174   2              // 没有初始化，但是检测到了有效键值，说明是上电后，第一次收到有效�
+  54   1          volatile key_val_t cur_key_lev = KEY_VAL_INVALID;
+  55   1      
+  56   1          cur_key_lev = key0_get_key_val();
+  57   1          if (cur_key_lev != filter_key_lev)
+  58   1          {
+  59   2              filter_cnt = 0;
+  60   2              filter_key_lev = cur_key_lev;
+  61   2          }
+  62   1      
+  63   1          if (filter_cnt < 3)
+  64   1          {
+  65   2              filter_cnt++;
+  66   2              return;
+  67   2          }
+  68   1      
+  69   1          if (0 == is_initialized && cur_key_lev == KEY_VAL_INVALID)
+  70   1          {
+  71   2              // 没有初始化，并且当前键值无效，说明是上电后，一直没有给有效信号
+  72   2              return;
+  73   2          }
+  74   1          else if (0 == is_initialized && cur_key_lev != KEY_VAL_INVALID)
+  75   1          {
+  76   2              // 没有初始化，但是检测到了有效键值，说明是上电后，第一次收到有效�
              -�号
- 175   2              is_initialized = 1;
-C51 COMPILER V9.60.7.0   KEY                                                               07/16/2026 14:54:18 PAGE 4   
+  77   2              is_initialized = 1;
+  78   2          }
+  79   1      
+  80   1      #if (PRODUCT_TYPE == PRODUCT_TYPE_1)
+  81   1          if (KEY_VAL_INVALID != cur_key_lev)
+  82   1          {
+  83   2              // 键值有效，可能是高电平也可能是低电平
+  84   2      #if USER_DEBUG_ENABLE
+                      // printf("key val valid\n");
+                      // printf("key val == %u\n", (u16)cur_key_lev);
+              #endif
+  88   2      
+  89   2              if (KEY_VAL_VALID_LOW == cur_key_lev)
+  90   2              {
+  91   3                  motor_set_dir(&motor_handle_0, MOTOR_DIR_FORWARD);
+  92   3      #if USER_DEBUG_ENABLE
+                          printf("MOTOR_DIR_FORWARD\n");
+              #endif
+  95   3              }
+  96   2              else
+  97   2              {
+  98   3                  motor_set_dir(&motor_handle_0, MOTOR_DIR_REVERSE);
+  99   3      #if USER_DEBUG_ENABLE
+                          printf("MOTOR_DIR_REVERSE\n");
+              #endif
+ 102   3              }
+ 103   2          }
+ 104   1          else
+ 105   1          {
+ 106   2              // 键值无效，说明当前引脚悬空
+ 107   2      #if USER_DEBUG_ENABLE
+                      printf("key val invalid\n");
+              #endif
+ 110   2              motor_set_dir(&motor_handle_0, MOTOR_DIR_REVERSE);
+ 111   2      #if USER_DEBUG_ENABLE
+                      printf("MOTOR_DIR_REVERSE\n");
+              #endif
+ 114   2          }
+C51 COMPILER V9.60.7.0   KEY                                                               11/02/2026 14:09:58 PAGE 3   
 
- 176   2          }
- 177   1      
- 178   1      #if (PRODUCT_TYPE == PRODUCT_TYPE_1)
+ 115   1      #elif (PRODUCT_TYPE == PRODUCT_TYPE_2)
                   if (KEY_VAL_INVALID != cur_key_lev)
                   {
                       // 键值有效，可能是高电平也可能是低电平
@@ -205,16 +139,16 @@ line level    source
               
                       if (KEY_VAL_VALID_LOW == cur_key_lev)
                       {
-                          motor_set_dir(&motor_handle_0, MOTOR_DIR_FORWARD);
+                          motor_set_dir(&motor_handle_0, MOTOR_DIR_REVERSE);
               #if USER_DEBUG_ENABLE
-                          printf("MOTOR_DIR_FORWARD\n");
+                          printf("MOTOR_DIR_REVERSE\n");
               #endif
                       }
                       else
                       {
-                          motor_set_dir(&motor_handle_0, MOTOR_DIR_REVERSE);
+                          motor_set_dir(&motor_handle_0, MOTOR_DIR_FORWARD);
               #if USER_DEBUG_ENABLE
-                          printf("MOTOR_DIR_REVERSE\n");
+                          printf("MOTOR_DIR_FORWARD\n");
               #endif
                       }
                   }
@@ -224,52 +158,15 @@ line level    source
               #if USER_DEBUG_ENABLE
                       printf("key val invalid\n");
               #endif
-                      motor_set_dir(&motor_handle_0, MOTOR_DIR_REVERSE);
+                      motor_set_dir(&motor_handle_0, MOTOR_DIR_FORWARD);
               #if USER_DEBUG_ENABLE
-                      printf("MOTOR_DIR_REVERSE\n");
-              #endif
-                  }
-              #elif (PRODUCT_TYPE == PRODUCT_TYPE_2)
- 214   1          if (KEY_VAL_INVALID != cur_key_lev)
- 215   1          {
- 216   2              // 键值有效，可能是高电平也可能是低电平
- 217   2      #if USER_DEBUG_ENABLE
-                      // printf("key val valid\n");
-                      // printf("key val == %u\n", (u16)cur_key_lev);
-              #endif
- 221   2      
- 222   2              if (KEY_VAL_VALID_LOW == cur_key_lev)
- 223   2              {
- 224   3                  motor_set_dir(&motor_handle_0, MOTOR_DIR_REVERSE);
- 225   3      #if USER_DEBUG_ENABLE
-                          printf("MOTOR_DIR_REVERSE\n");
-              #endif
- 228   3              }
- 229   2              else
- 230   2              {
- 231   3                  motor_set_dir(&motor_handle_0, MOTOR_DIR_FORWARD);
- 232   3      #if USER_DEBUG_ENABLE
-                          printf("MOTOR_DIR_FORWARD\n");
-              #endif
- 235   3              }
- 236   2          }
- 237   1          else
-C51 COMPILER V9.60.7.0   KEY                                                               07/16/2026 14:54:18 PAGE 5   
-
- 238   1          {
- 239   2              // 键值无效，说明当前引脚悬空
- 240   2      #if USER_DEBUG_ENABLE
-                      printf("key val invalid\n");
-              #endif
- 243   2              motor_set_dir(&motor_handle_0, MOTOR_DIR_FORWARD);
- 244   2      #if USER_DEBUG_ENABLE
                       printf("MOTOR_DIR_FORWARD\n");
               #endif
- 247   2          }
- 248   1      #else
+                  }
+              #else
               #error "product type invalid"
               #endif
- 251   1      }
+ 153   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE

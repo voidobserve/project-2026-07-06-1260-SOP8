@@ -3,13 +3,12 @@
 #include "include.h"
 
 // 常用的定时时间 [0]-->1ms,  [1]-->500us,  [2]-->125us, [3]-->100us, [4]-->10us
-static const u8 timer_div[] =
-	{
-		1,	 // 1ms
-		2,	 // 500us
-		8,	 // 125us
-		10,	 // 100us
-		100, // 10us
+static const u8 timer_div[] = {
+	1,	 // 1ms
+	2,	 // 500us
+	8,	 // 125us
+	10,	 // 100us
+	100, // 10us
 };
 
 #define TIME_SEL_1MS (0)
@@ -32,7 +31,17 @@ static const u8 timer_div[] =
 #define UP_1MS (100)
 #endif
 
+/*
+	定时器定时周期，单位：Hz
+	周期值 == 系统时钟 / 定时器分频 / 频率 - 1
+*/
 #define TIMER0_PEROID_VAL (SYSCLK / 1 / 1000 / timer_div[TIMER0_TIME_SEL] - 1) // 周期值=系统时钟/分频/频率 - 1
+
+// TEST ONLY
+// enum
+// {
+// 	TEST_VAL = TIMER0_PEROID_VAL,
+// };
 
 void timer0_init(void);
 

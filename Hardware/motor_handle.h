@@ -8,7 +8,7 @@
 #define MOTOR_WORKING_PWM_DUTY_VAL ((u16)PWM_DUTY_VAL_85_PERCENT) // 电机工作时，对应的PWM占空比值
 #define MOTOR_OVERCURRENT_ADC_VAL ((u16)1657)                     // 电机过流时，adc检测对应的阈值（约1.7V）
 #define MOTOR_OVERCURRENT_TIME_CNT_MAX ((u16)200)                 // 电机过流检测的计数值最大值
-#define MOTOR_WORKING_OVER_TIME ((u16)8000)                       // 电机工作正常时，超时时间
+#define MOTOR_WORKING_OVER_TIME ((u16)5000)                       // 电机工作正常时，超时时间
 
 #define MOTOR_0_FORWARD_PWM_DUTY_SET(motor_0_pwm_duty) pwm_channel_0_set_duty(motor_0_pwm_duty)
 #define MOTOR_0_REVERSE_PWM_DUTY_SET(motor_0_pwm_duty) pwm_channel_1_set_duty(motor_0_pwm_duty)

@@ -73,7 +73,7 @@ void motor_set_dir(motor_handle_t *motor_handle, motor_dest_dir_t dest_dir)
         return;
     }
 
-    // 无论要执行什么操作，都先停止电机    
+    // 无论要执行什么操作，都先停止电机
     motor_handle_ptr->stop();
     motor_handle_ptr->status = MOTOR_STATUS_STOP; // 表示电机已经停止（如果不加这句，电机工作的累计时间会一直持续，不会清零）
     // motor_handle_ptr->is_status_need_to_feedback = 0; // 不把这个停止状态反馈给蓝牙ic
@@ -197,8 +197,6 @@ static void motor_handle(motor_handle_t *motor_handle)
             // 如果电机是正转后停下来的，点亮灯光
             LED_POWER_ON();
         }
-
-        // motor_handle_ptr->is_status_need_to_feedback = 1;
     }
 }
 

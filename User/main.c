@@ -41,7 +41,6 @@ void main(void)
     while (1)
     {
         WDT_KEY = WDT_KEY_VAL(0xAA); // 喂狗
-
         task_handle();
 
         // printf("main\n");

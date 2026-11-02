@@ -1,0 +1,29 @@
+# ===== Keil 编译中间文件与构建输出 =====
+
+# 本工程构建输出目录（.obj .__i .lnp .lst .m51 .hex .build_log.htm 等）
+/Project/Keil/**/Objects/
+/Project/Keil/**/Listings/
+
+# Keil 常见输出目录（输出路径变更时兜底）
+Objects/
+Listings/
+Output/
+Debug/
+
+# 编译中间/输出文件扩展名（兜底）
+*.obj
+*.__i
+*.lnp
+*.lst
+*.m51
+*.hex
+*.bin
+*.axf
+*.elf
+*.map
+*.crf
+*.i51
+*.plg
+*.build_log.htm
+*.srec
+*.ihx
