@@ -27,3 +27,9 @@ Debug/
 *.build_log.htm
 *.srec
 *.ihx
+
+# 烧录/调试日志与临时文件
+TXLinkLog.txt
+*.log
+*.bak
+*.tmp
