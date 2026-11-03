@@ -8,7 +8,28 @@
 #define MOTOR_WORKING_PWM_DUTY_VAL ((u16)PWM_DUTY_VAL_85_PERCENT) // 电机工作时，对应的PWM占空比值
 #define MOTOR_OVERCURRENT_ADC_VAL ((u16)1657)                     // 电机过流时，adc检测对应的阈值（约1.7V）
 #define MOTOR_OVERCURRENT_TIME_CNT_MAX ((u16)200)                 // 电机过流检测的计数值最大值
-#define MOTOR_WORKING_OVER_TIME ((u16)5000)                       // 电机工作正常时，超时时间
+/*
+    电机工作正常时，超时时间
+
+    8000： 客户实际测试是10秒左右
+    5000： 客户实际测试是6秒左右，需要减少1500ms
+
+    8000：10秒
+    5000：6秒
+
+    假设y为秒，x是数值
+    根据 y = kx + b，列出两个等式
+    10 = 8000k + b
+    6 = 5000k + b
+
+    4 = 3000k
+    k = 4/3000 约为 0.00133
+    b = 10 - 8000 * 0.00133 = -0.64
+
+    如果要 y = 5,则 x = (5 + 0.64) / 0.00133 = 4,240
+*/
+// #define MOTOR_WORKING_OVER_TIME ((u16)5000)
+#define MOTOR_WORKING_OVER_TIME ((u16)4240)
 
 #define MOTOR_0_FORWARD_PWM_DUTY_SET(motor_0_pwm_duty) pwm_channel_0_set_duty(motor_0_pwm_duty)
 #define MOTOR_0_REVERSE_PWM_DUTY_SET(motor_0_pwm_duty) pwm_channel_1_set_duty(motor_0_pwm_duty)
@@ -25,7 +46,7 @@ typedef u8 motor_status_t;
 /*
     电机方向，
     在dest_dir中，作为矢量来使用，并不代表电机当前的状态
-*/ 
+*/
 enum
 {
     MOTOR_DIR_NONE = 0, // 默认状态
@@ -36,8 +57,8 @@ typedef u8 motor_dest_dir_t;
 
 typedef struct
 {
-    motor_dest_dir_t dest_dir;     // 目标方向（除了刚上电，其余情况只能是正转或者反转）
-    motor_status_t status;         // 当前状态
+    motor_dest_dir_t dest_dir; // 目标方向（除了刚上电，其余情况只能是正转或者反转）
+    motor_status_t status;     // 当前状态
 
     u8 change_dir_enable; // 是否要改变方向
     u16 change_dir_cnt;   // 改变方向的计数器（电机不能马上改变方向，如果同时正转和反转，驱动电机的MOS管会短路）
